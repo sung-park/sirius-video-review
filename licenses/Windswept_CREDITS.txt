@@ -1,0 +1,25 @@
+MUSIC CREDIT — 이 컬렉션의 12개 영상 모두에 적용
+
+"Windswept" Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 4.0 License
+https://creativecommons.org/licenses/by/4.0/
+
+Track/source: https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100757
+Artist/source website: https://incompetech.com/
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+License URL: https://creativecommons.org/licenses/by/4.0/
+Legal code: https://creativecommons.org/licenses/by/4.0/legalcode.en
+ISRC: USUAN1100757
+Official MP3 source: https://incompetech.com/music/royalty-free/mp3-royaltyfree/Windswept.mp3
+기존 공식 곡별/라이선스 증빙 확인: 2026-11-07 KST. 이번 작업은 기존 검증 소스를 로컬에서 재사용하며 새 웹 조회/게시를 하지 않았습니다.
+
+Changes / 변경사항:
+원곡 도입부를 편별 약20–25.267초 발췌하고 음량 조절, 내레이션 아래 ducking, fade-in/fade-out을 적용했습니다. 음악 원속도는 유지했습니다. 영상04 기본 로컬본은 동일 폰 장면의 중립적 예시 UI 정렬만 수정했고 음성·음악 AAC는 기존과 동일합니다.
+
+공개 사이트 필수 표시:
+위 곡명·작가·출처·라이선스 링크와 변경사항을 같은 페이지의 항상 접근 가능한 음악 크레딧 영역(플레이어 근처 또는 명확한 footer)에 표시하고 링크를 클릭 가능하게 해주세요. 이 txt를 저장소 안에만 숨겨두는 것으로 공개 페이지 표기가 완료되었다고 보지 않습니다. 아티스트의 Sirius 제품 보증을 뜻하지 않습니다. 별도 음악 크레딧 카드가 없는 영상들이므로 공개 사이트가 이 attribution을 함께 제공해야 합니다. 영상을 따로 재배포할 때도 이 출처/라이선스/변경 표시를 동반해야 합니다.
+
+이 CC 라이선스는 음악에 적용되며 영상 전체를 자동으로 CC BY로 배포한다는 뜻이 아닙니다. royalty-free는 무저작권이 아닙니다. 지역 공연권·행사장/플랫폼 조건이 모두 면제된다는 보장은 하지 않습니다.
+
+CASTING / FACTUAL NOTICE:
+실제 익명 UT 응답을 바탕으로 한 가상 인터뷰 재구성이며 인물·음성은 AI로 재현했습니다. 나이·성별·견종·공간·연결 장면은 가상 캐스팅이고 실제 응답자의 속성이나 실제 참여자 촬영이 아닙니다. 진단·치료·회복 효과나 정확도 보장을 주장하지 않습니다. 원본 설문·개인연락처·응답자 실명은 이 공개 자산 모음에 포함하지 않습니다.

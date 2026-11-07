@@ -1,0 +1,7 @@
+# Videos stay ordinary Git blobs. Do not convert them to Git LFS.
+*.mp4 -filter -diff -merge binary
+*.webm -filter -diff -merge binary
+*.mov -filter -diff -merge binary
+*.jpg -filter -diff -merge binary
+*.jpeg -filter -diff -merge binary
+*.png -filter -diff -merge binary

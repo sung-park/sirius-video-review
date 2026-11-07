@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>시리우스 영상 리뷰</title>
+  <meta name="description" content="Sirius UT 인터뷰 쇼츠를 보고 좋음, 수정 필요, 제외로 구분합니다. 평가는 이 브라우저에만 저장됩니다.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#player">영상으로 건너뛰기</a>
+  <header class="wrap top">
+    <p class="eyebrow">Sirius UT · <a href="credits.html">음악 크레딧</a></p>
+    <h1 id="product-title">Sirius UT 인터뷰 쇼츠</h1>
+    <p class="notice" role="note">평가는 이 브라우저에만 저장됩니다. 다른 기기와 자동으로 동기화되지 않습니다. 옮기려면 백업 파일을 보내거나 가져오세요.</p>
+  </header>
+  <p id="catalog-error" class="banner wrap" role="alert" hidden></p>
+  <main class="wrap">
+    <div class="toolbar">
+      <h2 id="progress-count">대표 평가 0 / 0</h2>
+      <div class="scopes" role="group" aria-label="영상 목록">
+        <button type="button" id="scope-representative" aria-pressed="true">대표</button>
+        <button type="button" id="scope-variants" aria-pressed="false">변주</button>
+      </div>
+    </div>
+    <div id="filters" class="filters" role="group" aria-label="상태 필터"></div>
+    <section class="viewer" aria-labelledby="video-title">
+      <p id="position" class="position">0 / 0</p>
+      <div class="stage">
+        <video id="player" controls playsinline webkit-playsinline preload="metadata"></video>
+        <p id="stage-empty" class="stage-empty" hidden>영상을 준비 중입니다.</p>
+        <p id="file-error" class="file-error" hidden>영상 파일을 불러오지 못했습니다.</p>
+      </div>
+      <div class="dock">
+        <div id="ratings" class="ratings" role="group" aria-label="평가"></div>
+        <div class="nav">
+          <button type="button" id="prev">이전</button>
+          <button type="button" id="next">다음</button>
+        </div>
+        <p class="dock-note">표시만 바꿉니다. 영상 파일은 지우지 않습니다. ← → 키로 이동합니다.</p>
+      </div>
+      <h2 id="video-title">영상을 준비하고 있습니다</h2>
+      <p id="badges" class="badges"></p>
+      <p class="cast-label">등장 <strong>재구성·AI 생성</strong></p>
+      <p id="cast-note"></p>
+      <h3 class="cast-label">이 편의 경험</h3>
+      <p id="experience"></p>
+      <button type="button" id="variant-jump" hidden>햇살 편 보기</button>
+      <label for="jump">편 이동
+        <select id="jump"></select>
+      </label>
+      <label for="memo">메모</label>
+      <textarea id="memo" maxlength="2000" autocomplete="off" placeholder="이 브라우저에만 남습니다"></textarea>
+      <p id="empty-filter" hidden>이 상태의 영상이 없습니다. 다른 필터를 고르세요.</p>
+      <p id="live" class="visually-hidden" aria-live="polite"></p>
+    </section>
+    <section class="backup panel" aria-labelledby="backup-heading">
+      <h2 id="backup-heading">백업</h2>
+      <p>이 브라우저의 평가만 파일로 저장합니다. 영상은 포함되지 않습니다.</p>
+      <div class="backup-actions">
+        <button type="button" id="export">평가 보내기</button>
+        <label class="file-btn">평가 가져오기
+          <input id="import" type="file" accept="application/json,.json">
+        </label>
+      </div>
+      <p id="backup-message" role="status"></p>
+    </section>
+  </main>
+  <footer class="colophon">
+    <h2>안내</h2>
+    <p id="casting-notice">나이·성별·견종·공간·연결 장면은 가상 캐스팅이며 실제 응답자의 속성이 아닙니다. 인물·음성은 AI로 재현했습니다.</p>
+    <p id="factual-notice">실제 익명 UT 경험을 바탕으로 재구성했으며 진단·치료·회복 효과나 측정 정확도 보장을 주장하지 않습니다.</p>
+    <h2>음악</h2>
+    <p class="credit-required">"Windswept" Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 4.0 License
+https://creativecommons.org/licenses/by/4.0/</p>
+    <ul class="credit-links">
+      <li><a href="https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100757">곡 출처</a></li>
+      <li><a href="https://incompetech.com/">Kevin MacLeod (incompetech.com)</a></li>
+      <li><a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0 라이선스</a></li>
+      <li><a href="credits.html">음악 크레딧 전문</a></li>
+    </ul>
+    <p>변경: 원곡 도입부를 편별 약20–25.267초 발췌하고 음량 조절, 내레이션 아래 ducking, fade-in/fade-out을 적용했습니다. 음악 원속도는 유지했습니다. 영상04 기본 로컬본은 동일 폰 장면의 중립적 예시 UI 정렬만 수정했고 음성·음악 AAC는 기존과 동일합니다.</p>
+    <p>이 CC 라이선스는 음악에만 적용됩니다. 영상 전체를 CC BY로 배포한다는 뜻이 아니며, 아티스트가 Sirius를 보증한다는 뜻도 아닙니다.</p>
+  </footer>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

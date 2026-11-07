@@ -1,0 +1,31 @@
+{
+  "accessed_at_kst": "2026-11-07T11:00:19.741915+09:00",
+  "title": "Windswept",
+  "artist": "Kevin MacLeod",
+  "isrc": "USUAN1100757",
+  "track_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100757",
+  "audio_url": "https://incompetech.com/music/royalty-free/mp3-royaltyfree/Windswept.mp3",
+  "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "legalcode_url": "https://creativecommons.org/licenses/by/4.0/legalcode.en",
+  "official_attribution": "\"Windswept\" Kevin MacLeod (incompetech.com)\nLicensed under Creative Commons: By Attribution 4.0 License\nhttps://creativecommons.org/licenses/by/4.0/",
+  "download_sha256": "0d7445201046bf536e9982c56a8b068d3c4bda18d01817edc6610b4a6a46e706",
+  "appliesTo": [
+    "ep01-main",
+    "ep02-main",
+    "ep03-main",
+    "ep04-main",
+    "ep05-main",
+    "ep06-main",
+    "ep07-main",
+    "ep08-main",
+    "ep09-main",
+    "ep10-main",
+    "ep11-main",
+    "ep04-sunlight"
+  ],
+  "changes": "원곡 도입부를 편별 약20–25.267초 발췌하고 음량 조절, 내레이션 아래 ducking, fade-in/fade-out을 적용했습니다. 음악 원속도는 유지했습니다. 영상04 기본 로컬본은 동일 폰 장면의 중립적 예시 UI 정렬만 수정했고 음성·음악 AAC는 기존과 동일합니다.",
+  "attributionDisplayRequired": true,
+  "artistEndorsement": false,
+  "licenseAppliesTo": "Music only, not automatically the complete videos."
+}

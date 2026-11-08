@@ -12,7 +12,9 @@ import {
   progressOf,
   readStore,
   reviewKey,
+  carryAudio,
   scopedVideos,
+  settlePlay,
   statusOf,
   validateBackup,
   validateCatalog,
@@ -26,6 +28,9 @@ const els = {
   scopeVariants: document.querySelector("#scope-variants"),
   filters: document.querySelector("#filters"),
   player: document.querySelector("#player"),
+  sidePrev: document.querySelector("#side-prev"),
+  sideNext: document.querySelector("#side-next"),
+  playHint: document.querySelector("#play-hint"),
   stageEmpty: document.querySelector("#stage-empty"),
   fileError: document.querySelector("#file-error"),
   position: document.querySelector("#position"),
@@ -214,13 +219,16 @@ function canMove(step) {
   return Boolean(visible[start + step]);
 }
 
-function showVideo(video) {
+function showVideo(video, { play = false } = {}) {
   const player = els.player;
+  const audio = carryAudio(player);
   playerToken += 1;
-  player.dataset.token = String(playerToken);
+  const token = playerToken;
+  player.dataset.token = String(token);
   els.fileError.hidden = true;
+  els.playHint.hidden = true;
+  player.pause();
   if (!video) {
-    player.pause();
     player.removeAttribute("src");
     player.load();
     player.hidden = true;
@@ -232,9 +240,20 @@ function showVideo(video) {
   els.stageEmpty.hidden = true;
   player.playsInline = true;
   player.preload = "metadata";
+  player.muted = audio.muted;
+  player.volume = audio.volume;
   player.setAttribute("aria-label", `${video.episode}화 ${video.title}`);
   const url = new URL(video.src, document.baseURI);
   if (player.getAttribute("src") !== url.href) player.src = url.href;
+  if (!play) return;
+  const pending = player.play();
+  settlePlay(pending).then((result) => {
+    if (player.dataset.token !== String(token)) return;
+    if (!result.blocked) return;
+    player.pause();
+    els.playHint.hidden = false;
+    announce("자동 재생이 막혔습니다. 재생 버튼을 눌러 주세요.");
+  });
 }
 
 function renderViewer() {
@@ -267,8 +286,12 @@ function renderViewer() {
     els.memo.value = video ? memoOf(state.store, video) : "";
   }
   els.memo.disabled = !video;
-  els.prev.disabled = !canMove(-1);
-  els.next.disabled = !canMove(1);
+  const atStart = !canMove(-1);
+  const atEnd = !canMove(1);
+  els.prev.disabled = atStart;
+  els.next.disabled = atEnd;
+  els.sidePrev.disabled = atStart;
+  els.sideNext.disabled = atEnd;
   els.emptyFilter.hidden = inList || state.catalog.videos.length === 0;
   els.stageEmpty.hidden = Boolean(video);
   els.stageEmpty.textContent = state.catalog.videos.length
@@ -325,10 +348,10 @@ function rememberPlace() {
   history.replaceState(null, "", url);
 }
 
-function loadCurrent({ announceMove }) {
+function loadCurrent({ announceMove, play = false }) {
   state.archive = null;
   const video = currentVideo();
-  showVideo(video);
+  showVideo(video, { play });
   rememberPlace();
   render();
   if (announceMove && video) announce(`${video.episode}화 ${video.title}`);
@@ -342,7 +365,7 @@ function move(step) {
   const next = visible[start + step];
   if (!next) return;
   state.currentKey = reviewKey(next);
-  loadCurrent({ announceMove: true });
+  loadCurrent({ announceMove: true, play: true });
 }
 
 function setScope(scope) {
@@ -384,6 +407,8 @@ els.player.addEventListener("error", () => {
 
 els.prev.addEventListener("click", () => move(-1));
 els.next.addEventListener("click", () => move(1));
+els.sidePrev.addEventListener("click", () => move(-1));
+els.sideNext.addEventListener("click", () => move(1));
 els.scopeRepresentative.addEventListener("click", () => setScope("representative"));
 els.scopeVariants.addEventListener("click", () => setScope("variants"));
 els.variantJump.addEventListener("click", () => openVideo(sibling(currentVideo())));

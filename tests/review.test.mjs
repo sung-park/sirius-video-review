@@ -16,6 +16,9 @@ import {
   cutLabel,
   validateBackup,
   validateCatalog,
+  neighborIndex,
+  carryAudio,
+  settlePlay,
 } from "../js/review.js";
 
 const catalogRaw = JSON.parse(readFileSync(new URL("../catalog.json", import.meta.url), "utf8"));
@@ -218,6 +221,18 @@ test("backup import replaces only a valid file", () => {
   const round = memoryStorage();
   writeStore(round, checked.backup.store);
   assert.equal(readStore(round).reviews["ep01-main@private_final_bgm"].status, "exclude");
+});
+
+test("navigation stays inside the list and keeps the previous sound setting", async () => {
+  assert.equal(neighborIndex(0, 15, -1), null);
+  assert.equal(neighborIndex(14, 15, 1), null);
+  assert.equal(neighborIndex(0, 15, 1), 1);
+  assert.equal(neighborIndex(3, 15, -1), 2);
+  assert.equal(neighborIndex(-1, 15, 1), null);
+  assert.deepEqual(carryAudio({ muted: false, volume: 0.4 }), { muted: false, volume: 0.4 });
+  assert.deepEqual(carryAudio({ muted: true, volume: 8 }), { muted: true, volume: 1 });
+  assert.deepEqual(await settlePlay(Promise.resolve()), { playing: true, blocked: false });
+  assert.deepEqual(await settlePlay(Promise.reject(new Error("NotAllowedError"))), { playing: false, blocked: true });
 });
 
 test("catalog rejects a path outside media", () => {

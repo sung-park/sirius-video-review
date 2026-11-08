@@ -158,7 +158,7 @@ function renderBadges(video) {
   els.badges.replaceChildren();
   if (!video) return;
   const items = [`${video.episode}화`];
-  if (state.archive && reviewKey(state.archive) === reviewKey(video)) items.push(cutLabel(video));
+  if (state.archive && reviewKey(state.archive) === reviewKey(video)) items.push(cutLabel(video, currentVideo()?.version));
   if (video.variant === "sunlight") items.push("햇살 편");
   else if (video.variant !== "main") items.push(video.variant);
   items.push(`약 ${Math.round(video.durationSeconds)}초`);
@@ -263,7 +263,7 @@ function renderViewer() {
   const place = latest ? visible.findIndex((item) => reviewKey(item) === reviewKey(latest)) : -1;
   const inList = Boolean(latest) && visible.length > 0;
   els.position.textContent = state.archive
-    ? cutLabel(state.archive)
+    ? cutLabel(state.archive, latest && latest.version)
     : !latest
       ? "0 / 0"
       : (place >= 0 ? `${place + 1} / ${visible.length}` : "필터 밖");
@@ -325,7 +325,7 @@ function renderCut(latest) {
   options.forEach((video) => {
     const option = document.createElement("option");
     option.value = reviewKey(video);
-    option.textContent = cutLabel(video);
+    option.textContent = cutLabel(video, latest.version);
     select.append(option);
   });
   const selected = state.archive && reviewKey(state.archive);
@@ -428,7 +428,7 @@ els.cut.addEventListener("change", () => {
   state.archive = match;
   showVideo(match);
   render();
-  announce(`${match.episode}화 ${cutLabel(match)}. 평가는 이 버전에만 남습니다.`);
+  announce(`${match.episode}화 ${cutLabel(match, latest.version)}. 평가는 이 버전에만 남습니다.`);
 });
 els.jump.addEventListener("change", () => {
   const match = state.catalog.videos.find((video) => reviewKey(video) === els.jump.value);
@@ -518,19 +518,46 @@ els.importInput.addEventListener("change", async () => {
 });
 
 async function loadPrevious() {
-  const files = ["history/catalog_before_clean_v3.json", "history/catalog_before_exhibition_v2.json"];
+  const files = [
+    "history/entries_before_age_voice_v1.json",
+    "history/catalog_before_clean_v3.json",
+    "history/catalog_before_exhibition_v2.json",
+  ];
   const catalogs = [];
   for (const file of files) {
     try {
       const response = await fetch(new URL(file, document.baseURI), { cache: "no-store" });
       if (!response.ok) continue;
-      const checked = validateCatalog(await response.json());
+      const data = await response.json();
+      const checked = validateCatalog(Array.isArray(data) ? historyShell(data) : data);
       if (checked.ok) catalogs.push(checked.catalog.videos);
     } catch {
       // Older catalogs are optional. The latest list still plays.
     }
   }
   state.olderCatalogs = catalogs;
+}
+
+function historyShell(videos) {
+  const music = state.catalog.musicCredits;
+  return {
+    schemaVersion: state.catalog.schemaVersion,
+    collectionTitle: state.catalog.collectionTitle,
+    castingNotice: state.catalog.castingNotice,
+    factualNotice: state.catalog.factualNotice,
+    musicCredits: {
+      title: music.title,
+      artist: music.artist,
+      artistUrl: music.artistUrl,
+      trackUrl: music.trackUrl,
+      license: music.license,
+      licenseUrl: music.licenseUrl,
+      requiredDisplayText: music.requiredDisplayText,
+      changes: music.changes,
+      displayVisiblyOnPublicPage: true,
+    },
+    videos,
+  };
 }
 
 async function boot() {

@@ -29,8 +29,9 @@ jobs:
           python3 - << 'PY'
           import pathlib
           files = sorted(pathlib.Path("media").glob("*.mp4"))
-          if len(files) != 12:
-              raise SystemExit(f"expected 12 mp4 files, found {len(files)}")
+          expected = 28
+          if len(files) != expected:
+              raise SystemExit(f"expected {expected} mp4 files, found {len(files)}")
           limit = 15_000_000
           for path in files:
               data = path.read_bytes()
@@ -43,7 +44,7 @@ jobs:
       - name: Assemble site
         run: |
           mkdir -p _site
-          cp -a index.html credits.html css js catalog.json media licenses .nojekyll _site/
+          cp -a index.html credits.html css js catalog.json media licenses history .nojekyll _site/
           cp README.txt _site/README.txt
 
       - name: Configure Pages

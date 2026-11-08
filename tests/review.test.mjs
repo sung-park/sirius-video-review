@@ -42,28 +42,53 @@ function memoryStorage(initial = null) {
   };
 }
 
-test("catalog keeps 11 representative cuts and a separate 04 sunlight variant", () => {
+const latestExpected = {
+  "media/01_exhibition_v2_720p.mp4": ["3813926", "934b4470140ac0ed1914a6d5595c81a78a131e40b75fe45a825f07fb2568cf20"],
+  "media/02_exhibition_v2_720p.mp4": ["3340190", "d447d22b72ceaa220ca029ad6e2353afbea10a02ceac4710670d9198886f29c3"],
+  "media/03_exhibition_v2_720p.mp4": ["6265721", "1ae72b3abfecc3e19fdf50c6f3e24308c96299826020dd9a4e73277c5879fcdc"],
+  "media/04_exhibition_v2_720p.mp4": ["6927097", "dae4a274b16b32c0595a54f71a72ff93e13faae5177affd9e66b37ee10b5acd6"],
+  "media/04_sunlight_exhibition_v2_720p.mp4": ["6292305", "cb857f527cc1e5592fb4bf1c06c9b7553a66bf40846be068565fccf4e8bb7f09"],
+  "media/05_exhibition_v2_720p.mp4": ["5104013", "edef07771c93fda595ffdd4edd5f5ef947a77fe804759d74e7c22beb250adff5"],
+  "media/06_exhibition_v2_720p.mp4": ["5454721", "91d803b3a566698b72bcf36231e0f702d108244c1596b67c56ce878f55d97494"],
+  "media/07_exhibition_v2_720p.mp4": ["8508872", "f77785aeab22c93b0e7f065c44fc7056226c955803e0e848683c1eae3d96559f"],
+  "media/08_exhibition_v2_720p.mp4": ["5430899", "c4eda79f667388e9e149908f1a83111cd576e27070b0f4c70c84e658e3c3bc2b"],
+  "media/09_exhibition_v2_720p.mp4": ["6273507", "b905ec1ffea31634e010772171b9c9649ada409c9dee614490394be1bfc65b36"],
+  "media/10_exhibition_v2_720p.mp4": ["4513351", "035b977f529a26396d6288ba15581991656c4f4f0fb758e35884c8cd7a34977f"],
+  "media/11_exhibition_v2_720p.mp4": ["7082220", "e85f40c746f62a2855cf1b5d0e987aeaf702050e456c76b5f56a37ba5564a0cd"],
+  "media/12_exhibition_v2_720p.mp4": ["6057143", "cc1d973a8c4a348fc18859c3d59a5051f0e4f1ec332642a58c9d9d6751f5872a"],
+  "media/13_exhibition_v2_720p.mp4": ["5743769", "a21bcf392bc285118dfdb57fa8513e411df98f324507558abfa70d622f389834"],
+  "media/14_exhibition_v2_720p.mp4": ["6161952", "62a9e1859999749c415e9ab3e192297756b7df53e89a6cbe8f237c24dfa73dbc"],
+  "media/15_exhibition_v2_720p.mp4": ["4653104", "452712566f6d4e73743e481881623d5816649ef34834a6f5a57e6688fa7eb434"],
+};
+
+test("catalog keeps 15 representative cuts and a separate 04 sunlight variant", () => {
   const checked = validateCatalog(catalogRaw);
   assert.equal(checked.ok, true);
+  assert.equal(checked.catalog.schemaVersion, 2);
   const { videos } = checked.catalog;
   const representative = scopedVideos(videos, "representative");
   const variants = scopedVideos(videos, "variants");
-  assert.equal(representative.length, 11);
-  assert.deepEqual(representative.map((video) => video.episode), ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11"]);
+  assert.equal(representative.length, 15);
+  assert.deepEqual(representative.map((video) => video.episode), ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15"]);
   assert.equal(variants.length, 1);
   assert.equal(variants[0].id, "ep04-sunlight");
-  assert.equal(variants[0].isRepresentative, false);
+  assert.equal(variants[0].src, "media/04_sunlight_exhibition_v2_720p.mp4");
   assert.equal(representative.some((video) => video.id === "ep04-sunlight"), false);
   assert.notEqual(reviewKey(representative[3]), reviewKey(variants[0]));
-  assert.equal(representative[3].episode, "04");
-  assert.equal(new Set(videos.map((video) => video.src)).size, 12);
+  assert.equal(new Set(videos.map((video) => video.src)).size, 16);
   videos.forEach((video) => {
-    const [size, sha] = expected[video.src];
+    const [size, sha] = latestExpected[video.src];
     const bytes = readFileSync(new URL(`../${video.src}`, import.meta.url));
     assert.equal(String(bytes.length), size);
     assert.equal(createHash("sha256").update(bytes).digest("hex"), sha);
+    assert.equal(video.contentSha256, sha);
     assert.ok(bytes.length < 15_000_000);
     assert.equal(bytes.subarray(0, 180).includes(Buffer.from("git-lfs.github.com")), false);
+  });
+  Object.entries(expected).forEach(([file, [size, sha]]) => {
+    const bytes = readFileSync(new URL(`../${file}`, import.meta.url));
+    assert.equal(String(bytes.length), size);
+    assert.equal(createHash("sha256").update(bytes).digest("hex"), sha);
   });
 });
 
@@ -81,6 +106,9 @@ test("public pages show the supplied music credit and fictional casting label", 
   assert.ok(index.includes(catalogRaw.castingNotice));
   assert.ok(index.includes(catalogRaw.factualNotice));
   assert.ok(credits.includes("USUAN1100757"));
+  assert.ok(credits.includes("https://hangeul.naver.com/font"));
+  assert.ok(credits.includes("licenses/Naver_Fonts_OFL1.1_full.txt"));
+  assert.ok(index.includes("https://hangeul.naver.com/font"));
   assert.ok(credits.includes("https://creativecommons.org/licenses/by/4.0/legalcode.en"));
   assert.match(index, /<video[^>]*controls/);
   assert.match(index, /playsinline/);
@@ -90,6 +118,27 @@ test("public pages show the supplied music credit and fictional casting label", 
   assert.equal(index.includes('src="/'), false);
   assert.equal(readFileSync(new URL("../catalog.json", import.meta.url), "utf8").includes("/workspace"), false);
   assert.equal(readFileSync(new URL("../README.txt", import.meta.url), "utf8").includes("/workspace"), false);
+});
+
+test("a new cut stays unrated and the old rating remains exportable", () => {
+  const latest = validateCatalog(catalogRaw).catalog.videos.find((video) => video.id === "ep01-main");
+  const history = validateCatalog(JSON.parse(readFileSync(new URL("../history/catalog_before_exhibition_v2.json", import.meta.url), "utf8")));
+  assert.equal(history.ok, true);
+  const previous = history.catalog.videos.find((video) => video.id === "ep01-main");
+  assert.notEqual(reviewKey(latest), reviewKey(previous));
+  const store = applyReview(emptyStore(), previous, { status: "good", memo: "예전 컷" });
+  assert.equal(statusOf(store, previous), "good");
+  assert.equal(statusOf(store, latest), "unrated");
+  const backup = buildBackup(store, new Date("2026-11-08T00:00:00.000Z"));
+  assert.equal(backup.reviews[reviewKey(previous)].memo, "예전 컷");
+  assert.equal(backup.reviews[reviewKey(latest)], undefined);
+  const storage = memoryStorage();
+  writeStore(storage, store);
+  const restored = readStore(storage);
+  assert.equal(statusOf(restored, previous), "good");
+  assert.equal(statusOf(restored, latest), "unrated");
+  const representative = scopedVideos(validateCatalog(catalogRaw).catalog.videos, "representative");
+  assert.equal(progressOf(representative, restored).unrated, 15);
 });
 
 test("ratings stay on the stable id and version in this browser", () => {
@@ -104,7 +153,7 @@ test("ratings stay on the stable id and version in this browser", () => {
   const representative = scopedVideos(videos, "representative");
   assert.equal(progressOf(representative, store).rated, 1);
   assert.equal(filterVideos(representative, store, "good").map((video) => video.id).join(), "ep04-main");
-  assert.equal(filterVideos(representative, store, "unrated").length, 10);
+  assert.equal(filterVideos(representative, store, "unrated").length, 14);
   const storage = memoryStorage();
   writeStore(storage, store);
   const restored = readStore(storage);

@@ -63,7 +63,7 @@ export function validateCatalog(data) {
   if (!isPlainObject(data)) {
     return { ok: false, error: "목록 파일 형식이 올바르지 않습니다." };
   }
-  if (data.schemaVersion !== SCHEMA_VERSION) {
+  if (data.schemaVersion !== 1 && data.schemaVersion !== 2) {
     return { ok: false, error: "목록 스키마 버전이 맞지 않습니다." };
   }
   const text = (value, max) => typeof value === "string" && value.trim() !== "" && value.length <= max;
@@ -142,6 +142,12 @@ export function validateCatalog(data) {
     if (entry.mimeType !== "video/mp4") {
       return { ok: false, error: `${label} 형식이 mp4가 아닙니다.` };
     }
+    if (entry.contentSha256 !== undefined && (typeof entry.contentSha256 !== "string" || !/^[a-f0-9]{64}$/.test(entry.contentSha256))) {
+      return { ok: false, error: `${label} 내용 해시가 올바르지 않습니다.` };
+    }
+    if (entry.requiresFreshReview !== undefined && typeof entry.requiresFreshReview !== "boolean") {
+      return { ok: false, error: `${label} 재평가 값이 올바르지 않습니다.` };
+    }
     videos.push({
       episode: entry.episode,
       id: entry.id,
@@ -157,12 +163,14 @@ export function validateCatalog(data) {
       width: entry.width,
       height: entry.height,
       mimeType: entry.mimeType,
+      contentSha256: entry.contentSha256,
+      requiresFreshReview: entry.requiresFreshReview === true,
     });
   }
   return {
     ok: true,
     catalog: {
-      schemaVersion: SCHEMA_VERSION,
+      schemaVersion: data.schemaVersion,
       collectionTitle: data.collectionTitle.trim(),
       castingNotice: data.castingNotice.trim(),
       factualNotice: data.factualNotice.trim(),

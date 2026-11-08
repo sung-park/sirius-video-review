@@ -33,6 +33,7 @@ const els = {
   castNote: document.querySelector("#cast-note"),
   experience: document.querySelector("#experience"),
   variantJump: document.querySelector("#variant-jump"),
+  archiveJump: document.querySelector("#archive-jump"),
   jump: document.querySelector("#jump"),
   ratings: document.querySelector("#ratings"),
   memo: document.querySelector("#memo"),
@@ -56,6 +57,8 @@ const state = {
   filter: "all",
   currentKey: "",
   memoTimer: 0,
+  archive: null,
+  previousById: {},
 };
 
 let playerToken = 0;
@@ -79,6 +82,10 @@ function persist() {
 
 function currentVideo() {
   return state.catalog.videos.find((video) => reviewKey(video) === state.currentKey) || null;
+}
+
+function shownVideo() {
+  return state.archive || currentVideo();
 }
 
 function scopeList() {
@@ -144,6 +151,8 @@ function renderBadges(video) {
   els.badges.replaceChildren();
   if (!video) return;
   const items = [`${video.episode}화`];
+  if (state.archive && reviewKey(state.archive) === reviewKey(video)) items.push("이전 컷");
+  else if (video.requiresFreshReview) items.push("새 컷");
   if (video.variant === "sunlight") items.push("햇살 편");
   else if (video.variant !== "main") items.push(video.variant);
   items.push(`약 ${Math.round(video.durationSeconds)}초`);
@@ -228,18 +237,21 @@ function showVideo(video) {
 }
 
 function renderViewer() {
-  const video = currentVideo();
+  const latest = currentVideo();
+  const video = shownVideo();
   const visible = visibleVideos();
-  const place = video ? visible.findIndex((item) => reviewKey(item) === reviewKey(video)) : -1;
-  const inList = Boolean(video) && visible.length > 0;
-  els.position.textContent = !video
-    ? "0 / 0"
-    : (place >= 0 ? `${place + 1} / ${visible.length}` : "필터 밖");
+  const place = latest ? visible.findIndex((item) => reviewKey(item) === reviewKey(latest)) : -1;
+  const inList = Boolean(latest) && visible.length > 0;
+  els.position.textContent = state.archive
+    ? "이전 컷"
+    : !latest
+      ? "0 / 0"
+      : (place >= 0 ? `${place + 1} / ${visible.length}` : "필터 밖");
   els.title.textContent = video ? video.title : "이 조건의 영상이 없습니다";
   renderBadges(video);
   els.castNote.textContent = video ? video.cast : "";
   els.experience.textContent = video ? video.experience : "";
-  const pair = sibling(video);
+  const pair = state.archive ? null : sibling(latest);
   if (pair) {
     els.variantJump.hidden = false;
     els.variantJump.textContent = pair.variant === "sunlight" ? "햇살 편 보기" : "대표 편으로";
@@ -247,7 +259,18 @@ function renderViewer() {
     els.variantJump.hidden = true;
     els.variantJump.textContent = "";
   }
-  renderJump(visible, video);
+  const previousCut = latest && state.previousById[latest.id];
+  if (state.archive) {
+    els.archiveJump.hidden = false;
+    els.archiveJump.textContent = "최신 컷으로";
+  } else if (previousCut && reviewKey(previousCut) !== reviewKey(latest)) {
+    els.archiveJump.hidden = false;
+    els.archiveJump.textContent = "이전 컷 보기";
+  } else {
+    els.archiveJump.hidden = true;
+    els.archiveJump.textContent = "";
+  }
+  renderJump(visible, latest);
   renderRatings(video);
   if (document.activeElement !== els.memo) {
     els.memo.value = video ? memoOf(state.store, video) : "";
@@ -279,6 +302,7 @@ function rememberPlace() {
 }
 
 function loadCurrent({ announceMove }) {
+  state.archive = null;
   const video = currentVideo();
   showVideo(video);
   rememberPlace();
@@ -339,6 +363,19 @@ els.next.addEventListener("click", () => move(1));
 els.scopeRepresentative.addEventListener("click", () => setScope("representative"));
 els.scopeVariants.addEventListener("click", () => setScope("variants"));
 els.variantJump.addEventListener("click", () => openVideo(sibling(currentVideo())));
+els.archiveJump.addEventListener("click", () => {
+  if (state.archive) {
+    loadCurrent({ announceMove: true });
+    return;
+  }
+  const latest = currentVideo();
+  const previous = latest && state.previousById[latest.id];
+  if (!previous) return;
+  state.archive = previous;
+  showVideo(previous);
+  render();
+  announce(`${previous.episode}화 이전 컷. 평가는 이 버전에만 남습니다.`);
+});
 els.jump.addEventListener("change", () => {
   const match = state.catalog.videos.find((video) => reviewKey(video) === els.jump.value);
   if (!match || reviewKey(match) === state.currentKey) return;
@@ -347,7 +384,7 @@ els.jump.addEventListener("change", () => {
 });
 
 els.memo.addEventListener("input", () => {
-  const video = currentVideo();
+  const video = shownVideo();
   if (!video) return;
   window.clearTimeout(state.memoTimer);
   state.memoTimer = window.setTimeout(() => {
@@ -426,6 +463,18 @@ els.importInput.addEventListener("change", async () => {
   render();
 });
 
+async function loadPrevious() {
+  try {
+    const response = await fetch(new URL("history/catalog_before_exhibition_v2.json", document.baseURI), { cache: "no-store" });
+    if (!response.ok) return;
+    const checked = validateCatalog(await response.json());
+    if (!checked.ok) return;
+    state.previousById = Object.fromEntries(checked.catalog.videos.map((video) => [video.id, video]));
+  } catch {
+    state.previousById = {};
+  }
+}
+
 async function boot() {
   try {
     const response = await fetch(new URL("catalog.json", document.baseURI), { cache: "no-store" });
@@ -440,6 +489,7 @@ async function boot() {
     state.catalog = checked.catalog;
     document.title = `${checked.catalog.collectionTitle} 리뷰`;
     chooseInitial();
+    await loadPrevious();
     loadCurrent({ announceMove: false });
   } catch {
     els.catalogError.hidden = false;

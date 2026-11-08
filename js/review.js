@@ -30,6 +30,12 @@ export function reviewKey(video) {
   return `${video.id}@${video.version}`;
 }
 
+export function cutLabel(video) {
+  if (typeof video.version === "string" && video.version.startsWith("clean_v3")) return "최신";
+  if (typeof video.version === "string" && video.version.startsWith("exhibition_v2")) return "전시";
+  return "처음";
+}
+
 export function emptyStore() {
   return { schemaVersion: SCHEMA_VERSION, reviews: {} };
 }

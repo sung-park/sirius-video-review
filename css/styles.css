@@ -194,7 +194,7 @@ video:not([hidden]) { display: block; }
 
 #experience { color: var(--ink); }
 
-#variant-jump, #archive-jump { width: 100%; margin-bottom: 0.9rem; }
+#variant-jump, #cut { width: 100%; margin-bottom: 0.9rem; }
 
 label { display: block; font-weight: 650; margin-bottom: 0.35rem; }
 

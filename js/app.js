@@ -153,7 +153,9 @@ function renderBadges(video) {
   els.badges.replaceChildren();
   if (!video) return;
   const items = [`${video.episode}화`];
-  if (state.archive && reviewKey(state.archive) === reviewKey(video)) items.push(cutLabel(video));
+  if (state.archive && reviewKey(state.archive) === reviewKey(video)) {
+    items.push(cutLabel(video, currentVideo()?.version));
+  }
   if (video.variant === "sunlight") items.push("햇살 편");
   else if (video.variant !== "main") items.push(video.variant);
   items.push(`약 ${Math.round(video.durationSeconds)}초`);
@@ -244,7 +246,7 @@ function renderViewer() {
   const place = latest ? visible.findIndex((item) => reviewKey(item) === reviewKey(latest)) : -1;
   const inList = Boolean(latest) && visible.length > 0;
   els.position.textContent = state.archive
-    ? cutLabel(state.archive)
+    ? cutLabel(state.archive, latest && latest.version)
     : !latest
       ? "0 / 0"
       : (place >= 0 ? `${place + 1} / ${visible.length}` : "필터 밖");
@@ -302,7 +304,7 @@ function renderCut(latest) {
   options.forEach((video) => {
     const option = document.createElement("option");
     option.value = reviewKey(video);
-    option.textContent = cutLabel(video);
+    option.textContent = cutLabel(video, latest.version);
     select.append(option);
   });
   const selected = state.archive && reviewKey(state.archive);
@@ -403,7 +405,7 @@ els.cut.addEventListener("change", () => {
   state.archive = match;
   showVideo(match);
   render();
-  announce(`${match.episode}화 ${cutLabel(match)}. 평가는 이 버전에만 남습니다.`);
+  announce(`${match.episode}화 ${cutLabel(match, latest.version)}. 평가는 이 버전에만 남습니다.`);
 });
 els.jump.addEventListener("change", () => {
   const match = state.catalog.videos.find((video) => reviewKey(video) === els.jump.value);
@@ -493,7 +495,11 @@ els.importInput.addEventListener("change", async () => {
 });
 
 async function loadPrevious() {
-  const files = ["history/catalog_before_clean_v3.json", "history/catalog_before_exhibition_v2.json"];
+  const files = [
+    "history/catalog_before_leash_fix.json",
+    "history/catalog_before_clean_v3.json",
+    "history/catalog_before_exhibition_v2.json",
+  ];
   const catalogs = [];
   for (const file of files) {
     try {

@@ -248,11 +248,11 @@
     {
       "episode": "12",
       "id": "ep12-main",
-      "version": "clean_v3_d15ff7b7a2b6",
+      "version": "leash_fix_v1_f46da1bda8a3",
       "title": "산책 끝의 작은 재미",
       "cast": "20대 여성·오렌지 포메라니안 (가상 캐스팅)",
       "experience": "산책 랭킹을 확인하는 재미로 조금 더 움직여 본 경험. 무리한 운동을 권하지 않음.",
-      "src": "media/12_clean_v3_720p.mp4",
+      "src": "media/12_leash_fix_v1_720p.mp4",
       "isLatest": true,
       "variant": "main",
       "isRepresentative": true,
@@ -260,9 +260,9 @@
       "width": 720,
       "height": 1280,
       "mimeType": "video/mp4",
-      "contentSha256": "d15ff7b7a2b6af669a245283aa3921e803596d832c15924e9957a674537295b8",
+      "contentSha256": "f46da1bda8a313a7b1e792523185471b357caf431dca7bf205fe0435ef2ec93d",
       "requiresFreshReview": true,
-      "reviewStatus": "pending_parent_videoReview"
+      "reviewStatus": "visual_pass_technical_audio_qc"
     },
     {
       "episode": "13",

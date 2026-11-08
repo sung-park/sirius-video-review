@@ -30,9 +30,10 @@ export function reviewKey(video) {
   return `${video.id}@${video.version}`;
 }
 
-export function cutLabel(video) {
-  if (typeof video.version === "string" && video.version.startsWith("clean_v3")) return "최신";
+export function cutLabel(video, currentVersion) {
+  if (currentVersion && video.version === currentVersion) return "최신";
   if (typeof video.version === "string" && video.version.startsWith("exhibition_v2")) return "전시";
+  if (typeof video.version === "string" && video.version.startsWith("clean_v3")) return "클린";
   return "처음";
 }
 

@@ -301,9 +301,14 @@ function renderViewer() {
 
 function olderCuts(id) {
   const cuts = [];
+  const seen = new Set();
   state.olderCatalogs.forEach((videos) => {
     const match = videos.find((video) => video.id === id);
-    if (match) cuts.push(match);
+    if (!match) return;
+    const key = reviewKey(match);
+    if (seen.has(key)) return;
+    seen.add(key);
+    cuts.push(match);
   });
   return cuts;
 }
@@ -520,6 +525,7 @@ els.importInput.addEventListener("change", async () => {
 async function loadPrevious() {
   const files = [
     "history/entries_before_age_voice_v1.json",
+    "history/catalog_before_leash_fix.json",
     "history/catalog_before_clean_v3.json",
     "history/catalog_before_exhibition_v2.json",
   ];

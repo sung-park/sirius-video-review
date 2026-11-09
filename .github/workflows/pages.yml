@@ -29,7 +29,7 @@ jobs:
           python3 - << 'PY'
           import pathlib
           files = sorted(pathlib.Path("media").glob("*.mp4"))
-          expected = 54
+          expected = 55
           if len(files) != expected:
               raise SystemExit(f"expected {expected} mp4 files, found {len(files)}")
           limit = 15_000_000

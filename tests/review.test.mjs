@@ -78,6 +78,7 @@ const latestExpected = {
   "media/10_clean_v3_720p.mp4": ["4301007", "1ed211423ec99e7aabcf0c4c4379e0a6be44a8d70d1b0a3c4f3ee2faecd59e4c"],
   "media/11_clean_v3_720p.mp4": ["5801133", "f6cd7d3698a8659cde8fac85570742534722a8b6317b9f431d1f0b3a0932984c"],
   "media/12_clean_v3_720p.mp4": ["5489172", "d15ff7b7a2b6af669a245283aa3921e803596d832c15924e9957a674537295b8"],
+  "media/12_leash_fix_v1_720p.mp4": ["5512881", "f46da1bda8a313a7b1e792523185471b357caf431dca7bf205fe0435ef2ec93d"],
   "media/13_clean_v3_720p.mp4": ["5484053", "8e02fcb76aa1003c898f874efcf19e6f9da333d3a6eb37941adb9896e195532d"],
   "media/14_clean_v3_720p.mp4": ["5486152", "bbf37b7666b841b2448da4ace7927dd12fb71a41416aa854f7abf52b2bbde545"],
   "media/15_clean_v3_720p.mp4": ["4388830", "de8702fb491a65bd693caa21d67867d61cbf0b5590d923bab8f6c5ded53aeb36"],
@@ -106,7 +107,7 @@ test("catalog keeps 15 representative cuts and a separate 04 sunlight variant", 
   assert.equal(variants[0].id, "ep04-sunlight");
   assert.equal(variants[0].src, "media/04_sunlight_age_voice_v1_720p.mp4");
   assert.equal(representative.find((video) => video.id === "ep01-main").src, "media/01_clean_v3_720p.mp4");
-  assert.equal(representative.find((video) => video.id === "ep12-main").src, "media/12_clean_v3_720p.mp4");
+  assert.equal(representative.find((video) => video.id === "ep12-main").src, "media/12_leash_fix_v1_720p.mp4");
   assert.equal(representative.find((video) => video.id === "ep05-main").version, "age_voice_v1_eca5b4842c2f");
   assert.equal(representative[0].version.startsWith("clean_v3_"), true);
   assert.equal(representative.some((video) => video.id === "ep04-sunlight"), false);
@@ -169,6 +170,16 @@ test("clean_v3 stays unrated while exhibition and original ratings remain export
   assert.equal(cutLabel(latest, latest.version), "최신");
   assert.equal(cutLabel(shown), "전시");
   assert.equal(cutLabel(first), "처음");
+  const fixed = validateCatalog(catalogRaw).catalog.videos.find((video) => video.id === "ep12-main");
+  const previous12 = validateCatalog(JSON.parse(readFileSync(new URL("../history/catalog_before_leash_fix.json", import.meta.url), "utf8"))).catalog.videos.find((video) => video.id === "ep12-main");
+  assert.equal(fixed.src, "media/12_leash_fix_v1_720p.mp4");
+  assert.equal(fixed.version, "leash_fix_v1_f46da1bda8a3");
+  assert.equal(fixed.contentSha256, "f46da1bda8a313a7b1e792523185471b357caf431dca7bf205fe0435ef2ec93d");
+  assert.equal(previous12.src, "media/12_clean_v3_720p.mp4");
+  assert.equal(cutLabel(fixed, fixed.version), "최신");
+  assert.equal(cutLabel(previous12, fixed.version), "클린");
+  assert.equal(cutLabel(latest, latest.version), "최신");
+  assert.notEqual(reviewKey(fixed), reviewKey(previous12));
   const voiced = validateCatalog(catalogRaw).catalog.videos.find((video) => video.id === "ep05-main");
   const previous05 = JSON.parse(readFileSync(new URL("../history/entries_before_age_voice_v1.json", import.meta.url), "utf8")).find((video) => video.id === "ep05-main");
   assert.equal(cutLabel(previous05, voiced.version), "클린");

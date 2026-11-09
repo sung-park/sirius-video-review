@@ -30,6 +30,29 @@ export function reviewKey(video) {
   return `${video.id}@${video.version}`;
 }
 
+export function neighborIndex(index, length, step) {
+  if (!Number.isInteger(index) || !Number.isInteger(length) || !Number.isInteger(step)) return null;
+  if (length < 1 || index < 0 || index >= length) return null;
+  const next = index + step;
+  if (next < 0 || next >= length) return null;
+  return next;
+}
+
+export function carryAudio(media) {
+  const volume = Number(media && media.volume);
+  return {
+    muted: Boolean(media && media.muted),
+    volume: Number.isFinite(volume) ? Math.min(1, Math.max(0, volume)) : 1,
+  };
+}
+
+export function settlePlay(result) {
+  if (!result || typeof result.then !== "function") {
+    return Promise.resolve({ playing: true, blocked: false });
+  }
+  return result.then(() => ({ playing: true, blocked: false })).catch(() => ({ playing: false, blocked: true }));
+}
+
 export function cutLabel(video, currentVersion) {
   if (currentVersion && video.version === currentVersion) return "최신";
   if (typeof video.version === "string" && video.version.startsWith("exhibition_v2")) return "전시";

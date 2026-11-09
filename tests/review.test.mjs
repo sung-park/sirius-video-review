@@ -16,6 +16,9 @@ import {
   cutLabel,
   validateBackup,
   validateCatalog,
+  neighborIndex,
+  carryAudio,
+  settlePlay,
 } from "../js/review.js";
 
 const catalogRaw = JSON.parse(readFileSync(new URL("../catalog.json", import.meta.url), "utf8"));
@@ -79,6 +82,16 @@ const latestExpected = {
   "media/13_clean_v3_720p.mp4": ["5484053", "8e02fcb76aa1003c898f874efcf19e6f9da333d3a6eb37941adb9896e195532d"],
   "media/14_clean_v3_720p.mp4": ["5486152", "bbf37b7666b841b2448da4ace7927dd12fb71a41416aa854f7abf52b2bbde545"],
   "media/15_clean_v3_720p.mp4": ["4388830", "de8702fb491a65bd693caa21d67867d61cbf0b5590d923bab8f6c5ded53aeb36"],
+  "media/04_age_voice_v1_720p.mp4": ["7331048", "1f549ade766ba8c8760d1e1d2491212b192ed4b1fd2b1a302b576917d4b9a97a"],
+  "media/04_sunlight_age_voice_v1_720p.mp4": ["6513651", "5179ade76fa33bb64ade77222f758df73997cb1678547d50b35c04bdd79e0526"],
+  "media/05_age_voice_v1_720p.mp4": ["5039252", "eca5b4842c2f3a7d1df1584d7bb8b91adbb55e44c97b2900a75a7e2a5465beae"],
+  "media/06_age_voice_v1_720p.mp4": ["5917588", "f50c94047506e23ef166669d0553eb97fcb122163778a330bb18681179e0e2e0"],
+  "media/08_age_voice_v1_720p.mp4": ["5355411", "972238008f1f393b8bb22b868533e740bfbd61caa64760c0ae311327bd8ed2d3"],
+  "media/10_age_voice_v1_720p.mp4": ["4330252", "f2460656b1e0462ddd75b0125aa6f42352275df39640cea1fe64c3b117fc25df"],
+  "media/11_age_voice_v1_720p.mp4": ["5763581", "e31ff26a49d4b2f459b81818d29640ed9ed0fe64e516cb3738d6c8a7a42ba853"],
+  "media/13_age_voice_v1_720p.mp4": ["5474282", "560f1f645df09c7366c06b0f43f01f55c868dabe85a4bebef3dd44c663f75c00"],
+  "media/14_age_voice_v1_720p.mp4": ["5479242", "ff38f71b7cf6dba78f4d0e189381ce46d557ef33a21dd68729075650ae51716c"],
+  "media/15_age_voice_v1_720p.mp4": ["4385454", "c4fe29f60905efddf2d74a8907471dc2d581d9dedba5a3e328c88f6eca79b019"],
 };
 
 test("catalog keeps 15 representative cuts and a separate 04 sunlight variant", () => {
@@ -92,7 +105,10 @@ test("catalog keeps 15 representative cuts and a separate 04 sunlight variant", 
   assert.deepEqual(representative.map((video) => video.episode), ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15"]);
   assert.equal(variants.length, 1);
   assert.equal(variants[0].id, "ep04-sunlight");
-  assert.equal(variants[0].src, "media/04_sunlight_clean_v3_720p.mp4");
+  assert.equal(variants[0].src, "media/04_sunlight_age_voice_v1_720p.mp4");
+  assert.equal(representative.find((video) => video.id === "ep01-main").src, "media/01_clean_v3_720p.mp4");
+  assert.equal(representative.find((video) => video.id === "ep12-main").src, "media/12_leash_fix_v1_720p.mp4");
+  assert.equal(representative.find((video) => video.id === "ep05-main").version, "age_voice_v1_eca5b4842c2f");
   assert.equal(representative[0].version.startsWith("clean_v3_"), true);
   assert.equal(representative.some((video) => video.id === "ep04-sunlight"), false);
   assert.notEqual(reviewKey(representative[3]), reviewKey(variants[0]));
@@ -135,6 +151,8 @@ test("public pages show the supplied music credit and fictional casting label", 
   assert.match(index, /playsinline/);
   assert.match(index, /preload="metadata"/);
   assert.doesNotMatch(index, /autoplay|google-analytics|gtag\(|cdn\.jsdelivr|unpkg|fonts\.googleapis/i);
+  assert.match(index, /id="side-prev"/);
+  assert.match(index, /id="side-next"/);
   assert.equal(index.includes('href="/'), false);
   assert.equal(index.includes('src="/'), false);
   assert.equal(readFileSync(new URL("../catalog.json", import.meta.url), "utf8").includes("/workspace"), false);
@@ -162,6 +180,13 @@ test("clean_v3 stays unrated while exhibition and original ratings remain export
   assert.equal(cutLabel(previous12, fixed.version), "클린");
   assert.equal(cutLabel(latest, latest.version), "최신");
   assert.notEqual(reviewKey(fixed), reviewKey(previous12));
+  const voiced = validateCatalog(catalogRaw).catalog.videos.find((video) => video.id === "ep05-main");
+  const previous05 = JSON.parse(readFileSync(new URL("../history/entries_before_age_voice_v1.json", import.meta.url), "utf8")).find((video) => video.id === "ep05-main");
+  assert.equal(cutLabel(previous05, voiced.version), "클린");
+  assert.notEqual(reviewKey(voiced), reviewKey(previous05));
+  const kept = applyReview(emptyStore(), previous05, { status: "good", memo: "클린 05" });
+  assert.equal(statusOf(kept, voiced), "unrated");
+  assert.equal(buildBackup(kept).reviews[reviewKey(previous05)].memo, "클린 05");
   assert.notEqual(reviewKey(latest), reviewKey(shown));
   assert.notEqual(reviewKey(shown), reviewKey(first));
   let store = applyReview(emptyStore(), shown, { status: "revise", memo: "전시 컷" });
@@ -229,6 +254,18 @@ test("backup import replaces only a valid file", () => {
   const round = memoryStorage();
   writeStore(round, checked.backup.store);
   assert.equal(readStore(round).reviews["ep01-main@private_final_bgm"].status, "exclude");
+});
+
+test("navigation stays inside the list and keeps the previous sound setting", async () => {
+  assert.equal(neighborIndex(0, 15, -1), null);
+  assert.equal(neighborIndex(14, 15, 1), null);
+  assert.equal(neighborIndex(0, 15, 1), 1);
+  assert.equal(neighborIndex(3, 15, -1), 2);
+  assert.equal(neighborIndex(-1, 15, 1), null);
+  assert.deepEqual(carryAudio({ muted: false, volume: 0.4 }), { muted: false, volume: 0.4 });
+  assert.deepEqual(carryAudio({ muted: true, volume: 8 }), { muted: true, volume: 1 });
+  assert.deepEqual(await settlePlay(Promise.resolve()), { playing: true, blocked: false });
+  assert.deepEqual(await settlePlay(Promise.reject(new Error("NotAllowedError"))), { playing: false, blocked: true });
 });
 
 test("catalog rejects a path outside media", () => {
